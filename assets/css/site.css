@@ -5908,10 +5908,19 @@ html {
     align-items: flex-start;
     flex-direction: column;
     gap: 12px;
+    box-sizing: border-box;
+    height: auto;
+    min-height: 80px;
     padding: 10px 0;
+    position: relative;
+    inset: auto;
   }
 
   .div-nav-menubar {
     margin-right: 0;
+  }
+
+  .div-nav-background {
+    inset: 0;
   }
 }
