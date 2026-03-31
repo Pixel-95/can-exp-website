@@ -5900,27 +5900,62 @@ html {
 
 @media screen and (max-width: 479px) {
   .navigation {
-    height: auto;
-    min-height: 80px;
-  }
-
-  .div-nav-bar {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 12px;
+    background-color: #000000f2;
     box-sizing: border-box;
     height: auto;
     min-height: 80px;
-    padding: 10px 0;
+    padding-top: max(8px, env(safe-area-inset-top));
+    padding-right: 4px;
+    padding-bottom: 8px;
+    padding-left: 0;
+    width: 100%;
+  }
+
+  .div-nav-bar {
+    align-items: center;
+    box-sizing: border-box;
+    flex-direction: row;
+    gap: 4px;
+    height: auto;
+    justify-content: space-between;
+    min-height: 0;
+    padding: 0;
     position: relative;
     inset: auto;
+    width: 100%;
+  }
+
+  .div-nav-logo {
+    flex: 0 0 auto;
+    height: 52px;
+    margin-left: 8px;
+    width: 52px;
   }
 
   .div-nav-menubar {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
     margin-right: 0;
+    padding-left: 0;
+    padding-right: 2px;
+  }
+
+  .nav-link {
+    font-size: 11px;
+    line-height: 16px;
+    white-space: nowrap;
+  }
+
+  .text-block-nav {
+    padding-left: 3px;
+    padding-right: 3px;
   }
 
   .div-nav-background {
-    inset: 0;
+    display: none;
   }
 }
