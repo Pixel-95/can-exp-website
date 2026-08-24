@@ -4948,6 +4948,17 @@ figcaption {
   display: flex;
 }
 
+.partner-text-link {
+  margin-top: 16px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.partner-text-link a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .div-block-19 {
   grid-column-gap: 0px;
   grid-row-gap: 0px;
