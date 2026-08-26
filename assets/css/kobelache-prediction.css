@@ -132,8 +132,20 @@
   text-decoration: line-through;
 }
 
+.prediction-legend-static {
+  display: inline-flex;
+  min-height: 2.65rem;
+  align-items: center;
+  gap: .52rem;
+  padding: .55rem .78rem;
+  color: #f5f5f5;
+  font-size: .9rem;
+  font-weight: 650;
+}
+
 .prediction-legend-swatch { display: inline-block; flex: 0 0 auto; }
 .prediction-legend-swatch--median { width: 1.6rem; height: .22rem; border-radius: 4px; background: #65c7ff; }
+.prediction-legend-swatch--observed { width: 1.6rem; height: .22rem; border-radius: 4px; background: #65c7ff; }
 .prediction-legend-swatch--fifty { width: 1.15rem; height: .85rem; border: 1px solid rgba(101, 199, 255, .45); border-radius: 3px; background: rgba(101, 199, 255, .26); }
 
 .prediction-chart {

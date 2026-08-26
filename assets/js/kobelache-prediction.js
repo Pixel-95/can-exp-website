@@ -13,6 +13,7 @@
   const nextElement = document.getElementById('prediction-next-update');
   let chart;
   let forecastPoints = [];
+  let chartRows = [];
 
   const dateFormatter = new Intl.DateTimeFormat('de-AT', {
     timeZone: TIME_ZONE,
@@ -38,7 +39,7 @@
   }
 
   function xLabelIndexes() {
-    const fullHours = forecastPoints.map((point, index) => new Date(point.valid_time).getUTCMinutes() === 0 ? index : null).filter(Number.isInteger);
+    const fullHours = chartRows.map((point, index) => new Date(point.valid_time).getUTCMinutes() === 0 ? index : null).filter(Number.isInteger);
     const width = chartElement.clientWidth || window.innerWidth;
     const labelCount = Math.min(fullHours.length, Math.max(3, Math.floor((width - 100) / 110)));
     return new Set(Array.from({ length: labelCount }, (_, index) => fullHours[Math.round(index * (fullHours.length - 1) / (labelCount - 1))]));
@@ -53,15 +54,15 @@
   }
 
   function yAxis() {
-    const maximum = Math.max(...forecastPoints.map((point) => Number(point.q_p75) || 0), 0.1);
+    const maximum = Math.max(...chartRows.map((point) => Number(point.observed_q ?? point.q_p75) || 0), 0.1);
     const minimumWanted = maximum * 1.1;
     const interval = niceStep(minimumWanted / 5);
     return { max: Math.ceil(minimumWanted / interval) * interval, interval };
   }
 
   function bandSeries(name, lowerKey, upperKey, color, active, stack) {
-    const lower = forecastPoints.map((point) => Number(point[lowerKey]));
-    const range = forecastPoints.map((point) => Number(point[upperKey]) - Number(point[lowerKey]));
+    const lower = chartRows.map((point) => point[lowerKey] === undefined ? null : Number(point[lowerKey]));
+    const range = chartRows.map((point) => point[lowerKey] === undefined ? null : Number(point[upperKey]) - Number(point[lowerKey]));
     const inactiveData = active ? undefined : lower.map(() => null);
     return [
       { name, type: 'line', stack, data: inactiveData || lower, symbol: 'none', lineStyle: { opacity: 0 }, areaStyle: { opacity: 0 }, tooltip: { show: false }, emphasis: { disabled: true }, silent: true, z: 1 },
@@ -71,15 +72,18 @@
 
   function tooltipFormatter(params) {
     const selected = params.find((item) => Number.isInteger(item.dataIndex));
-    const point = forecastPoints[selected ? selected.dataIndex : 0];
+    const point = chartRows[selected ? selected.dataIndex : 0];
     if (!point) return '';
+    if (point.observed_q !== undefined) {
+      return `<div class="prediction-tooltip"><strong>${formatDate(point.valid_time)}</strong><br><span>Gemessen</span><b>${formatQ(point.observed_q)}</b></div>`;
+    }
     return `<div class="prediction-tooltip"><strong>${formatDate(point.valid_time)}</strong><br><span>Median</span><b>${formatQ(point.q_p50)}</b><br><span>50%-Bereich</span><b>${formatQ(point.q_p25)} – ${formatQ(point.q_p75)}</b></div>`;
   }
 
   function renderChart() {
     if (!chart) chart = echarts.init(chartElement, null, { renderer: 'canvas' });
     const axis = yAxis();
-    const timestamps = forecastPoints.map((point) => point.valid_time);
+    const timestamps = chartRows.map((point) => point.valid_time);
     chart.setOption({
       animation: false,
       aria: { enabled: true, description: 'Abflussprognose der Kobelache für die nächsten 60 Stunden.' },
@@ -101,9 +105,10 @@
         position: (_point, _params, _dom, _rect, size) => [Math.max(8, (size.viewSize[0] - size.contentSize[0]) / 2), 10]
       },
       series: [
-        { name: '', type: 'line', data: forecastPoints.map((point) => Number(point.q_p50)), symbol: 'none', lineStyle: { opacity: 0 }, itemStyle: { opacity: 0 }, silent: true, z: 0 },
+        { name: '', type: 'line', data: chartRows.map((point) => Number(point.observed_q ?? point.q_p50)), symbol: 'none', lineStyle: { opacity: 0 }, itemStyle: { opacity: 0 }, silent: true, z: 0 },
+        { name: 'Gemessen', type: 'line', data: chartRows.map((point) => point.observed_q ?? null), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3 }, itemStyle: { color: '#65c7ff' }, z: 6 },
         ...bandSeries('50%-Bereich', 'q_p25', 'q_p75', 'rgba(101, 199, 255, .26)', visible.fifty, 'fifty'),
-        { name: 'Median', type: 'line', data: visible.median ? forecastPoints.map((point) => Number(point.q_p50)) : forecastPoints.map(() => null), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3, type: 'dashed' }, itemStyle: { color: '#65c7ff' }, z: 5 }
+        { name: 'Median', type: 'line', data: visible.median ? chartRows.map((point) => point.q_p50 === undefined ? null : Number(point.q_p50)) : chartRows.map(() => null), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3, type: 'dashed' }, itemStyle: { color: '#65c7ff' }, z: 5 }
       ]
     }, true);
   }
@@ -123,14 +128,31 @@
     showStatus(ageMinutes > 45 ? 'Hinweis: Der Datenstand ist älter als 45 Minuten.' : 'Prognose ist aktuell.', ageMinutes > 45 ? 'stale' : '');
   }
 
+  function buildChartRows(forecast) {
+    forecastPoints = forecast.points;
+    const observationCutoff = new Date(forecast.data_cutoff).getTime();
+    const observations = Array.isArray(forecast.observations?.points) ? forecast.observations.points : [];
+    const measured = observations
+      .filter((point) => Number.isFinite(Number(point.q)) && new Date(point.valid_time).getTime() <= observationCutoff)
+      .map((point) => ({ valid_time: point.valid_time, observed_q: Number(point.q) }));
+    if (!measured.length) {
+      measured.push({ valid_time: forecast.data_cutoff, observed_q: Number(forecastPoints[0].q_p50) });
+    }
+    measured.sort((left, right) => new Date(left.valid_time) - new Date(right.valid_time));
+    chartRows = [
+      ...measured,
+      ...forecastPoints.filter((point) => new Date(point.valid_time).getTime() > observationCutoff),
+    ];
+  }
+
   async function loadForecast() {
     showStatus('Prognose wird geladen …');
     try {
       const response = await fetch(DATA_URL, { cache: 'no-store' });
       if (!response.ok) throw new Error(`Server antwortet mit ${response.status}`);
       const forecast = await response.json();
-      if (!Array.isArray(forecast.points) || forecast.points.length !== 241) throw new Error('Die Prognosedaten sind unvollständig.');
-      forecastPoints = forecast.points;
+      if (!Array.isArray(forecast.points) || forecast.points.length !== 241 || !Array.isArray(forecast.observations?.points)) throw new Error('Die Prognosedaten sind unvollständig.');
+      buildChartRows(forecast);
       populateOverview(forecast);
       renderChart();
     } catch (error) {
