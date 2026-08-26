@@ -49,6 +49,13 @@
     return { min: first.getTime(), max: last.getTime() };
   }
 
+  function latestMeasurementTime() {
+    for (let index = chartRows.length - 1; index >= 0; index -= 1) {
+      if (chartRows[index].observed_q !== undefined) return chartRows[index].valid_time;
+    }
+    return null;
+  }
+
   function niceStep(value) {
     const exponent = Math.floor(Math.log10(Math.max(value, 0.001)));
     const magnitude = 10 ** exponent;
@@ -119,7 +126,7 @@
         }
       },
       series: [
-        { name: '', type: 'line', data: asTimeSeries(chartRows.map((point) => Number(point.observed_q ?? point.q_p50))), symbol: 'none', lineStyle: { opacity: 0 }, itemStyle: { opacity: 0 }, silent: true, z: 0 },
+        { name: '', type: 'line', data: asTimeSeries(chartRows.map((point) => Number(point.observed_q ?? point.q_p50))), symbol: 'none', lineStyle: { opacity: 0 }, itemStyle: { opacity: 0 }, silent: true, markLine: { silent: true, symbol: 'none', label: { show: false }, lineStyle: { color: '#454545', width: 1, type: 'solid' }, data: [{ xAxis: latestMeasurementTime() }] }, z: 0 },
         { name: 'Gemessen', type: 'line', data: asTimeSeries(visible.observed ? chartRows.map((point) => point.observed_q ?? null) : chartRows.map(() => null)), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3 }, itemStyle: { color: '#65c7ff' }, z: 6 },
         ...bandSeries('50%-Bereich', 'q_p25', 'q_p75', 'rgba(101, 199, 255, .26)', visible.fifty, 'fifty'),
         { name: 'Vorhersage', type: 'line', data: asTimeSeries(visible.median ? chartRows.map((point) => point.q_p50 === undefined ? null : Number(point.q_p50)) : chartRows.map(() => null)), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3, type: 'dashed' }, itemStyle: { color: '#65c7ff' }, z: 5 }
