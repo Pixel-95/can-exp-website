@@ -14,6 +14,7 @@
   let chart;
   let forecastPoints = [];
   let chartRows = [];
+  let dataCutoffTime;
 
   const dateFormatter = new Intl.DateTimeFormat('de-AT', {
     timeZone: TIME_ZONE,
@@ -39,10 +40,28 @@
   }
 
   function xLabelIndexes() {
-    const fullHours = chartRows.map((point, index) => new Date(point.valid_time).getUTCMinutes() === 0 ? index : null).filter(Number.isInteger);
-    const width = chartElement.clientWidth || window.innerWidth;
-    const labelCount = Math.min(fullHours.length, Math.max(3, Math.floor((width - 100) / 110)));
-    return new Set(Array.from({ length: labelCount }, (_, index) => fullHours[Math.round(index * (fullHours.length - 1) / (labelCount - 1))]));
+    const positions = new Map(chartRows.map((point, index) => [new Date(point.valid_time).getTime(), index]));
+    const labels = new Set();
+    const add = (time) => {
+      const position = positions.get(time.getTime());
+      if (position !== undefined) labels.add(position);
+    };
+    const first = new Date(chartRows[0].valid_time).getTime();
+    const last = new Date(chartRows[chartRows.length - 1].valid_time).getTime();
+    const cutoff = new Date(dataCutoffTime);
+    add(cutoff);
+
+    const hour = new Date(cutoff);
+    hour.setUTCMinutes(0, 0, 0);
+    const cutoffIsFullHour = cutoff.getUTCMinutes() === 0 && cutoff.getUTCSeconds() === 0;
+    const backward = new Date(hour);
+    backward.setUTCHours(backward.getUTCHours() - (cutoffIsFullHour ? 6 : 5));
+    for (let time = backward; time.getTime() >= first; time = new Date(time.getTime() - 6 * 60 * 60 * 1000)) add(time);
+
+    const forward = new Date(hour);
+    forward.setUTCHours(forward.getUTCHours() + (cutoffIsFullHour ? 6 : 7));
+    for (let time = forward; time.getTime() <= last; time = new Date(time.getTime() + 6 * 60 * 60 * 1000)) add(time);
+    return labels;
   }
 
   function niceStep(value) {
@@ -140,6 +159,7 @@
 
   function buildChartRows(forecast) {
     forecastPoints = forecast.points;
+    dataCutoffTime = forecast.data_cutoff;
     const observationCutoff = new Date(forecast.data_cutoff).getTime();
     const observations = Array.isArray(forecast.observations?.points) ? forecast.observations.points : [];
     const measured = observations
