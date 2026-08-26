@@ -20,10 +20,6 @@
     day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
   });
   const numberFormatter = new Intl.NumberFormat('de-AT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const datePartsFormatter = new Intl.DateTimeFormat('en-CA', {
-    timeZone: TIME_ZONE,
-    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23'
-  });
 
   const formatDate = (value) => dateFormatter.format(new Date(value)).replace(',', '');
   const formatQ = (value) => `${numberFormatter.format(value)} m³/s`;
@@ -47,22 +43,10 @@
   function timeAxisBounds() {
     const first = new Date(chartRows[0].valid_time);
     const last = new Date(chartRows[chartRows.length - 1].valid_time);
-    const parts = Object.fromEntries(datePartsFormatter.formatToParts(first).filter((part) => part.type !== 'literal').map((part) => [part.type, Number(part.value)]));
-    const localMidnight = Date.UTC(parts.year, parts.month - 1, parts.day);
-    const localTimeAtMidnight = new Date(localMidnight);
-    const midnightParts = Object.fromEntries(datePartsFormatter.formatToParts(localTimeAtMidnight).filter((part) => part.type !== 'literal').map((part) => [part.type, Number(part.value)]));
-    const offset = Date.UTC(midnightParts.year, midnightParts.month - 1, midnightParts.day, midnightParts.hour) - localMidnight;
-    const min = localMidnight - offset;
-    const sixHours = 6 * 60 * 60 * 1000;
-    const max = min + Math.ceil((last.getTime() - min) / sixHours) * sixHours;
-    return { min, max, interval: sixHours };
-  }
-
-  function latestMeasurementTime() {
-    for (let index = chartRows.length - 1; index >= 0; index -= 1) {
-      if (chartRows[index].observed_q !== undefined) return chartRows[index].valid_time;
-    }
-    return null;
+    first.setUTCMinutes(0, 0, 0);
+    last.setUTCMinutes(0, 0, 0);
+    last.setUTCHours(last.getUTCHours() + 1);
+    return { min: first.getTime(), max: last.getTime() };
   }
 
   function niceStep(value) {
@@ -115,7 +99,7 @@
       aria: { enabled: true, description: 'Abflussprognose der Kobelache für die nächsten 60 Stunden.' },
       grid: { top: 18, right: 38, bottom: 100, left: 78, containLabel: false },
       xAxis: {
-        type: 'time', min: timeBounds.min, max: timeBounds.max, splitNumber: Math.round((timeBounds.max - timeBounds.min) / timeBounds.interval),
+        type: 'time', min: timeBounds.min, max: timeBounds.max, interval: 6 * 60 * 60 * 1000,
         axisLine: { lineStyle: { color: '#747474' } }, axisTick: { show: false },
         axisLabel: { color: '#d5d5d5', fontSize: 11, rotate: 40, margin: 17, hideOverlap: false, formatter: (value) => formatDate(value) }
       },
@@ -136,7 +120,7 @@
       },
       series: [
         { name: '', type: 'line', data: asTimeSeries(chartRows.map((point) => Number(point.observed_q ?? point.q_p50))), symbol: 'none', lineStyle: { opacity: 0 }, itemStyle: { opacity: 0 }, silent: true, z: 0 },
-        { name: 'Gemessen', type: 'line', data: asTimeSeries(visible.observed ? chartRows.map((point) => point.observed_q ?? null) : chartRows.map(() => null)), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3 }, itemStyle: { color: '#65c7ff' }, markLine: { silent: true, symbol: 'none', label: { show: false }, lineStyle: { color: '#454545', width: 1 }, data: [{ xAxis: latestMeasurementTime() }] }, z: 6 },
+        { name: 'Gemessen', type: 'line', data: asTimeSeries(visible.observed ? chartRows.map((point) => point.observed_q ?? null) : chartRows.map(() => null)), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3 }, itemStyle: { color: '#65c7ff' }, z: 6 },
         ...bandSeries('50%-Bereich', 'q_p25', 'q_p75', 'rgba(101, 199, 255, .26)', visible.fifty, 'fifty'),
         { name: 'Vorhersage', type: 'line', data: asTimeSeries(visible.median ? chartRows.map((point) => point.q_p50 === undefined ? null : Number(point.q_p50)) : chartRows.map(() => null)), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3, type: 'dashed' }, itemStyle: { color: '#65c7ff' }, z: 5 }
       ]
