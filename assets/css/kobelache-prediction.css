@@ -97,6 +97,31 @@
 
 .prediction-overview .prediction-chart-title { margin-left: 0; }
 
+.prediction-range-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0 .25rem 1.25rem;
+  padding: .2rem;
+  border: 1px solid #555;
+  border-radius: 999px;
+  background: #252525;
+}
+
+.prediction-range-button {
+  min-height: 2.65rem;
+  padding: .5rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #d5d5d5;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.prediction-range-button[aria-pressed="true"] { background: #444; color: #fff; }
+.prediction-range-button:focus-visible { outline: 2px solid #65c7ff; outline-offset: 2px; }
+
 .prediction-legend {
   display: flex;
   flex-wrap: wrap;
@@ -164,6 +189,7 @@
   .prediction-chart-card { padding: 1rem .15rem .6rem; border-radius: .8rem; }
   .prediction-chart-title { margin-left: .85rem; }
   .prediction-overview .prediction-chart-title { margin-left: -.1rem; }
+  .prediction-range-switch { margin-left: .85rem; margin-right: .85rem; }
   .prediction-legend { margin-left: .85rem; margin-right: .85rem; gap: .42rem; }
   .prediction-legend-button { min-height: 2.8rem; padding: .52rem .67rem; font-size: .84rem; }
   .prediction-chart { width: calc(100% - .85rem); margin-left: .85rem; height: 70svh; min-height: 0; }
