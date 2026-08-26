@@ -48,13 +48,13 @@
         <main class="prediction-page">
     <div class="prediction-shell">
       <header>
-        <h1 class="prediction-heading">Kobelache-Abflussprognose</h1>
+        <h1 class="prediction-heading">Kobelache Pegel-Prognose</h1>
       </header>
 
       <section class="prediction-overview" aria-label="Aktueller Abfluss und Datenstand">
         <div>
-          <span class="prediction-overview-label">Aktuell gemessener Abfluss Q</span>
-          <div><span id="prediction-current-q" class="prediction-current-q">–</span><span class="prediction-current-unit">m³/s</span></div>
+          <h2 id="prediction-overv-label" class="prediction-chart-title">Aktuell gemessener Pegel</h2>
+          <div><span id="prediction-current-q" class="prediction-current-q">–</span><span class="prediction-current-unit">m</span></div>
           <p class="prediction-current-time">Messzeitpunkt: <time id="prediction-cutoff">–</time></p>
         </div>
         <div class="prediction-update-times">
@@ -64,11 +64,10 @@
       </section>
 
       <section class="prediction-chart-card" aria-labelledby="prediction-chart-title">
-        <h2 id="prediction-chart-title" class="prediction-chart-title">Abflussprognose</h2>
+        <h2 id="prediction-chart-title" class="prediction-chart-title">Pegel-Prognose</h2>
         <div class="prediction-legend" aria-label="Sichtbare Prognosebereiche">
           <button type="button" class="prediction-legend-button" data-prediction-series="median" aria-pressed="true"><span class="prediction-legend-swatch prediction-legend-swatch--median"></span>Median</button>
           <button type="button" class="prediction-legend-button" data-prediction-series="fifty" aria-pressed="true"><span class="prediction-legend-swatch prediction-legend-swatch--fifty"></span>50%-Bereich</button>
-          <button type="button" class="prediction-legend-button" data-prediction-series="ninety" aria-pressed="true"><span class="prediction-legend-swatch prediction-legend-swatch--ninety"></span>90%-Bereich</button>
         </div>
         <div id="prediction-chart" class="prediction-chart" role="img" aria-label="Interaktive Abflussprognose der Kobelache"></div>
         <p id="prediction-status" class="prediction-status" aria-live="polite">Prognose wird geladen …</p>

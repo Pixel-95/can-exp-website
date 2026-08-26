@@ -4,7 +4,7 @@
   const DATA_URL = 'https://storage.googleapis.com/canyon-kobelache-prediction-enz-forecast/enz-200204/latest.json';
   const TIME_ZONE = 'Europe/Vienna';
   const UPDATE_MINUTES = [3, 18, 33, 48];
-  const visible = { median: true, fifty: true, ninety: true };
+  const visible = { median: true, fifty: true };
   const chartElement = document.getElementById('prediction-chart');
   const statusElement = document.getElementById('prediction-status');
   const currentElement = document.getElementById('prediction-current-q');
@@ -37,18 +37,11 @@
     return next;
   }
 
-  function tickHours() {
+  function xLabelIndexes() {
+    const fullHours = forecastPoints.map((point, index) => new Date(point.valid_time).getUTCMinutes() === 0 ? index : null).filter(Number.isInteger);
     const width = chartElement.clientWidth || window.innerWidth;
-    const maxTicks = Math.max(2, Math.floor((width - 52) / 92));
-    return [1, 2, 3, 4, 6, 8, 12, 24].find((hours) => 60 / hours <= maxTicks) || 24;
-  }
-
-  function isVisibleTick(timestamp, index) {
-    const date = new Date(timestamp);
-    const minutes = date.getUTCMinutes();
-    const hours = date.getUTCHours();
-    const spacing = tickHours();
-    return (minutes === 0 && hours % spacing === 0) || (index === 0 && chartElement.clientWidth > 680);
+    const labelCount = Math.min(fullHours.length, Math.max(3, Math.floor((width - 100) / 110)));
+    return new Set(Array.from({ length: labelCount }, (_, index) => fullHours[Math.round(index * (fullHours.length - 1) / (labelCount - 1))]));
   }
 
   function niceStep(value) {
@@ -60,7 +53,7 @@
   }
 
   function yAxis() {
-    const maximum = Math.max(...forecastPoints.map((point) => Number(point.q_p95) || 0), 0.1);
+    const maximum = Math.max(...forecastPoints.map((point) => Number(point.q_p75) || 0), 0.1);
     const minimumWanted = maximum * 1.1;
     const interval = niceStep(minimumWanted / 5);
     return { max: Math.ceil(minimumWanted / interval) * interval, interval };
@@ -80,7 +73,7 @@
     const selected = params.find((item) => Number.isInteger(item.dataIndex));
     const point = forecastPoints[selected ? selected.dataIndex : 0];
     if (!point) return '';
-    return `<div class="prediction-tooltip"><strong>${formatDate(point.valid_time)}</strong><br><span>Median</span><b>${formatQ(point.q_p50)}</b><br><span>50%-Bereich</span><b>${formatQ(point.q_p25)} – ${formatQ(point.q_p75)}</b><br><span>90%-Bereich</span><b>${formatQ(point.q_p05)} – ${formatQ(point.q_p95)}</b></div>`;
+    return `<div class="prediction-tooltip"><strong>${formatDate(point.valid_time)}</strong><br><span>Median</span><b>${formatQ(point.q_p50)}</b><br><span>50%-Bereich</span><b>${formatQ(point.q_p25)} – ${formatQ(point.q_p75)}</b></div>`;
   }
 
   function renderChart() {
@@ -90,11 +83,11 @@
     chart.setOption({
       animation: false,
       aria: { enabled: true, description: 'Abflussprognose der Kobelache für die nächsten 60 Stunden.' },
-      grid: { top: 18, right: 14, bottom: 100, left: 58, containLabel: false },
+      grid: { top: 18, right: 38, bottom: 100, left: 78, containLabel: false },
       xAxis: {
         type: 'category', boundaryGap: false, data: timestamps,
         axisLine: { lineStyle: { color: '#747474' } }, axisTick: { show: false },
-        axisLabel: { color: '#d5d5d5', fontSize: 11, rotate: 40, margin: 17, hideOverlap: true, formatter: (value, index) => isVisibleTick(value, index) ? formatDate(value) : '' }
+        axisLabel: { color: '#d5d5d5', fontSize: 11, rotate: 40, margin: 17, hideOverlap: false, formatter: (value, index) => xLabelIndexes().has(index) ? formatDate(value) : '' }
       },
       yAxis: {
         type: 'value', min: 0, max: axis.max, interval: axis.interval, name: 'Abfluss (m³/s)', nameTextStyle: { color: '#d5d5d5', fontSize: 12, padding: [0, 0, 8, -4] },
@@ -104,13 +97,13 @@
       tooltip: {
         trigger: 'axis', triggerOn: 'mousemove|click', axisPointer: { type: 'line', snap: true, lineStyle: { color: '#9bdcff', width: 1 } },
         backgroundColor: 'rgba(16, 16, 16, .96)', borderWidth: 0, padding: [10, 12], textStyle: { color: '#fff', fontSize: 12 },
-        confine: true, className: 'prediction-echarts-tooltip', formatter: tooltipFormatter
+        confine: true, className: 'prediction-echarts-tooltip', formatter: tooltipFormatter,
+        position: (_point, _params, _dom, _rect, size) => [Math.max(8, (size.viewSize[0] - size.contentSize[0]) / 2), 10]
       },
       series: [
         { name: '', type: 'line', data: forecastPoints.map((point) => Number(point.q_p50)), symbol: 'none', lineStyle: { opacity: 0 }, itemStyle: { opacity: 0 }, silent: true, z: 0 },
-        ...bandSeries('90%-Bereich', 'q_p05', 'q_p95', 'rgba(140, 214, 255, .10)', visible.ninety, 'ninety'),
         ...bandSeries('50%-Bereich', 'q_p25', 'q_p75', 'rgba(101, 199, 255, .26)', visible.fifty, 'fifty'),
-        { name: 'Median', type: 'line', data: visible.median ? forecastPoints.map((point) => Number(point.q_p50)) : forecastPoints.map(() => null), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3 }, itemStyle: { color: '#65c7ff' }, z: 5 }
+        { name: 'Median', type: 'line', data: visible.median ? forecastPoints.map((point) => Number(point.q_p50)) : forecastPoints.map(() => null), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3, type: 'dashed' }, itemStyle: { color: '#65c7ff' }, z: 5 }
       ]
     }, true);
   }

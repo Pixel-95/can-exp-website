@@ -56,7 +56,7 @@
 
 .prediction-current-unit {
   margin-left: .3rem;
-  color: #fff;
+  color: #65c7ff;
   font-size: 1rem;
   font-weight: 650;
   letter-spacing: 0;
@@ -135,7 +135,6 @@
 .prediction-legend-swatch { display: inline-block; flex: 0 0 auto; }
 .prediction-legend-swatch--median { width: 1.6rem; height: .22rem; border-radius: 4px; background: #65c7ff; }
 .prediction-legend-swatch--fifty { width: 1.15rem; height: .85rem; border: 1px solid rgba(101, 199, 255, .45); border-radius: 3px; background: rgba(101, 199, 255, .26); }
-.prediction-legend-swatch--ninety { width: 1.15rem; height: .85rem; border: 1px solid rgba(140, 214, 255, .3); border-radius: 3px; background: rgba(140, 214, 255, .1); }
 
 .prediction-chart {
   width: 100%;
