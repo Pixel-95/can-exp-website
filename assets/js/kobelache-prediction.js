@@ -149,6 +149,10 @@
       measured.push({ valid_time: forecast.data_cutoff, observed_q: Number(forecastPoints[0].q_p50) });
     }
     measured.sort((left, right) => new Date(left.valid_time) - new Date(right.valid_time));
+    const predictionAnchor = measured[measured.length - 1];
+    for (const quantile of ['q_p05', 'q_p25', 'q_p50', 'q_p75', 'q_p95']) {
+      predictionAnchor[quantile] = predictionAnchor.observed_q;
+    }
     chartRows = [
       ...measured,
       ...forecastPoints.filter((point) => new Date(point.valid_time).getTime() > observationCutoff),
