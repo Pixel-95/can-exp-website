@@ -4,7 +4,7 @@
   const DATA_URL = 'https://storage.googleapis.com/canyon-kobelache-prediction-enz-forecast/enz-200204/latest.json';
   const TIME_ZONE = 'Europe/Vienna';
   const UPDATE_MINUTES = [3, 18, 33, 48];
-  const visible = { median: true, fifty: true };
+  const visible = { observed: true, median: true, fifty: true };
   const chartElement = document.getElementById('prediction-chart');
   const statusElement = document.getElementById('prediction-status');
   const currentElement = document.getElementById('prediction-current-q');
@@ -54,7 +54,13 @@
   }
 
   function yAxis() {
-    const maximum = Math.max(...chartRows.map((point) => Number(point.observed_q ?? point.q_p75) || 0), 0.1);
+    const values = [];
+    chartRows.forEach((point) => {
+      if (visible.observed && point.observed_q !== undefined) values.push(Number(point.observed_q));
+      if (visible.median && point.q_p50 !== undefined) values.push(Number(point.q_p50));
+      if (visible.fifty && point.q_p25 !== undefined && point.q_p75 !== undefined) values.push(Number(point.q_p25), Number(point.q_p75));
+    });
+    const maximum = Math.max(...values.filter(Number.isFinite), 0.1);
     const minimumWanted = maximum * 1.1;
     const interval = niceStep(minimumWanted / 5);
     return { max: Math.ceil(minimumWanted / interval) * interval, interval };
@@ -77,7 +83,7 @@
     if (point.observed_q !== undefined) {
       return `<div class="prediction-tooltip"><strong>${formatDate(point.valid_time)}</strong><br><span>Gemessen</span><b>${formatQ(point.observed_q)}</b></div>`;
     }
-    return `<div class="prediction-tooltip"><strong>${formatDate(point.valid_time)}</strong><br><span>Median</span><b>${formatQ(point.q_p50)}</b><br><span>50%-Bereich</span><b>${formatQ(point.q_p25)} – ${formatQ(point.q_p75)}</b></div>`;
+    return `<div class="prediction-tooltip"><strong>${formatDate(point.valid_time)}</strong><br><span>Vorhersage</span><b>${formatQ(point.q_p50)}</b><br><span>50%-Bereich</span><b>${formatQ(point.q_p25)} – ${formatQ(point.q_p75)}</b></div>`;
   }
 
   function renderChart() {
@@ -102,13 +108,17 @@
         trigger: 'axis', triggerOn: 'mousemove|click', axisPointer: { type: 'line', snap: true, lineStyle: { color: '#9bdcff', width: 1 } },
         backgroundColor: 'rgba(16, 16, 16, .96)', borderWidth: 0, padding: [10, 12], textStyle: { color: '#fff', fontSize: 12 },
         confine: true, className: 'prediction-echarts-tooltip', formatter: tooltipFormatter,
-        position: (_point, _params, _dom, _rect, size) => [Math.max(8, (size.viewSize[0] - size.contentSize[0]) / 2), 10]
+        position: (point, _params, _dom, _rect, size) => {
+          const tooltipWidth = size.contentSize[0];
+          const x = Math.max(8, Math.min(point[0] - tooltipWidth / 2, size.viewSize[0] - tooltipWidth - 8));
+          return [x, 10];
+        }
       },
       series: [
         { name: '', type: 'line', data: chartRows.map((point) => Number(point.observed_q ?? point.q_p50)), symbol: 'none', lineStyle: { opacity: 0 }, itemStyle: { opacity: 0 }, silent: true, z: 0 },
-        { name: 'Gemessen', type: 'line', data: chartRows.map((point) => point.observed_q ?? null), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3 }, itemStyle: { color: '#65c7ff' }, z: 6 },
+        { name: 'Gemessen', type: 'line', data: visible.observed ? chartRows.map((point) => point.observed_q ?? null) : chartRows.map(() => null), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3 }, itemStyle: { color: '#65c7ff' }, z: 6 },
         ...bandSeries('50%-Bereich', 'q_p25', 'q_p75', 'rgba(101, 199, 255, .26)', visible.fifty, 'fifty'),
-        { name: 'Median', type: 'line', data: visible.median ? chartRows.map((point) => point.q_p50 === undefined ? null : Number(point.q_p50)) : chartRows.map(() => null), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3, type: 'dashed' }, itemStyle: { color: '#65c7ff' }, z: 5 }
+        { name: 'Vorhersage', type: 'line', data: visible.median ? chartRows.map((point) => point.q_p50 === undefined ? null : Number(point.q_p50)) : chartRows.map(() => null), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3, type: 'dashed' }, itemStyle: { color: '#65c7ff' }, z: 5 }
       ]
     }, true);
   }
@@ -148,7 +158,9 @@
   async function loadForecast() {
     showStatus('Prognose wird geladen …');
     try {
-      const response = await fetch(DATA_URL, { cache: 'no-store' });
+      const requestUrl = new URL(DATA_URL);
+      requestUrl.searchParams.set('_', Date.now().toString());
+      const response = await fetch(requestUrl, { cache: 'no-store' });
       if (!response.ok) throw new Error(`Server antwortet mit ${response.status}`);
       const forecast = await response.json();
       if (!Array.isArray(forecast.points) || forecast.points.length !== 241 || !Array.isArray(forecast.observations?.points)) throw new Error('Die Prognosedaten sind unvollständig.');
@@ -175,6 +187,10 @@
       chart.resize();
       renderChart();
     }
+  });
+
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) loadForecast();
   });
 
   loadForecast();

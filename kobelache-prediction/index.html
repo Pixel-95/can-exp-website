@@ -5,6 +5,9 @@
   <title>Prediction | Canyon Explore</title>
   <meta content="Kobelache discharge prediction." name="description"/>
   <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Expires" content="0"/>
   <link href="../assets/css/site.css?v=20260331-headerfix" rel="stylesheet" type="text/css"/>
   <link href="../assets/css/kobelache-prediction.css?v=20260826" rel="stylesheet" type="text/css"/>
   <link href="../assets/logos/677d293c46899a7c3271af0a_Canyon-Explore_Logo_light_blackBack_32.png" rel="shortcut icon" type="image/x-icon"/>
@@ -54,7 +57,7 @@
       <section class="prediction-overview" aria-label="Aktueller Abfluss und Datenstand">
         <div>
           <h2 id="prediction-overv-label" class="prediction-chart-title">Aktuell gemessener Pegel</h2>
-          <div><span id="prediction-current-q" class="prediction-current-q">–</span><span class="prediction-current-unit">m</span></div>
+          <div><span id="prediction-current-q" class="prediction-current-q">–</span><span class="prediction-current-unit">m³/s</span></div>
           <p class="prediction-current-time">Messzeitpunkt: <time id="prediction-cutoff">–</time></p>
         </div>
         <div class="prediction-update-times">
@@ -66,8 +69,8 @@
       <section class="prediction-chart-card" aria-labelledby="prediction-chart-title">
         <h2 id="prediction-chart-title" class="prediction-chart-title">Pegel-Prognose</h2>
         <div class="prediction-legend" aria-label="Sichtbare Prognosebereiche">
-          <span class="prediction-legend-static"><span class="prediction-legend-swatch prediction-legend-swatch--observed"></span>Gemessen</span>
-          <button type="button" class="prediction-legend-button" data-prediction-series="median" aria-pressed="true"><span class="prediction-legend-swatch prediction-legend-swatch--median"></span>Median</button>
+          <button type="button" class="prediction-legend-button" data-prediction-series="observed" aria-pressed="true"><span class="prediction-legend-swatch prediction-legend-swatch--observed"></span>Gemessen</button>
+          <button type="button" class="prediction-legend-button" data-prediction-series="median" aria-pressed="true"><span class="prediction-legend-swatch prediction-legend-swatch--median"></span>Vorhersage</button>
           <button type="button" class="prediction-legend-button" data-prediction-series="fifty" aria-pressed="true"><span class="prediction-legend-swatch prediction-legend-swatch--fifty"></span>50%-Bereich</button>
         </div>
         <div id="prediction-chart" class="prediction-chart" role="img" aria-label="Interaktive Abflussprognose der Kobelache"></div>
@@ -86,6 +89,6 @@
   </div>
   <script src="../assets/js/site.js?v=20260331-headerfix" defer></script>
   <script src="../assets/js/echarts.min.js" defer></script>
-  <script src="../assets/js/kobelache-prediction.js?v=20260826" defer></script>
+  <script src="../assets/js/kobelache-prediction.js?v=20260826-2" defer></script>
 </body>
 </html>
