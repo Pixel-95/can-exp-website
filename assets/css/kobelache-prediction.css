@@ -1,0 +1,167 @@
+.prediction-page {
+  padding: 10.5rem 1.25rem 5rem;
+  background: #222;
+  color: #fff;
+}
+
+.prediction-shell {
+  width: min(100%, 1180px);
+  margin: 0 auto;
+}
+
+.prediction-heading {
+  margin: 0;
+  color: #fff;
+  text-align: left;
+  font-family: Farro, sans-serif;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  line-height: 1.12;
+}
+
+.prediction-subheading,
+.prediction-status {
+  margin: 0;
+  color: #c8c8c8;
+  font-size: .98rem;
+}
+
+.prediction-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
+  margin: 2rem 0 1rem;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid #444;
+  border-radius: 1rem;
+  background: #2b2b2b;
+  box-shadow: none;
+}
+
+.prediction-overview-label {
+  display: block;
+  margin-bottom: .3rem;
+  color: #c8c8c8;
+  font-size: .88rem;
+  font-weight: 600;
+}
+
+.prediction-current-q {
+  color: #65c7ff;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 750;
+  letter-spacing: -.045em;
+  line-height: 1;
+}
+
+.prediction-current-unit {
+  margin-left: .3rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+.prediction-current-time {
+  margin: .55rem 0 0;
+  color: #c8c8c8;
+  font-size: .9rem;
+}
+
+.prediction-update-times {
+  display: grid;
+  gap: .4rem;
+  padding-bottom: .15rem;
+  color: #c8c8c8;
+  font-size: .88rem;
+  text-align: right;
+}
+
+.prediction-update-times strong { color: #fff; }
+
+.prediction-chart-card {
+  padding: 1.25rem 1.1rem .85rem;
+  border: 1px solid #444;
+  border-radius: 1rem;
+  background: #2b2b2b;
+  box-shadow: none;
+}
+
+.prediction-chart-title {
+  margin: 0 0 .95rem .25rem;
+  color: #fff;
+  font-family: Farro, sans-serif;
+  font-size: clamp(1.15rem, 2.7vw, 1.45rem);
+  line-height: 1.3;
+}
+
+.prediction-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: 0 0 .7rem .25rem;
+}
+
+.prediction-legend-button {
+  display: inline-flex;
+  min-height: 2.65rem;
+  align-items: center;
+  gap: .52rem;
+  padding: .55rem .78rem;
+  border: 1px solid #555;
+  border-radius: 999px;
+  background: #333;
+  color: #f5f5f5;
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 650;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color .15s ease, color .15s ease, opacity .15s ease;
+}
+
+.prediction-legend-button:hover,
+.prediction-legend-button:focus-visible {
+  border-color: #65c7ff;
+  background: #404040;
+  outline: none;
+}
+
+.prediction-legend-button[aria-pressed="false"] {
+  opacity: .46;
+  text-decoration: line-through;
+}
+
+.prediction-legend-swatch { display: inline-block; flex: 0 0 auto; }
+.prediction-legend-swatch--median { width: 1.6rem; height: .22rem; border-radius: 4px; background: #65c7ff; }
+.prediction-legend-swatch--fifty { width: 1.15rem; height: .85rem; border: 1px solid rgba(101, 199, 255, .45); border-radius: 3px; background: rgba(101, 199, 255, .26); }
+.prediction-legend-swatch--ninety { width: 1.15rem; height: .85rem; border: 1px solid rgba(140, 214, 255, .3); border-radius: 3px; background: rgba(140, 214, 255, .1); }
+
+.prediction-chart {
+  width: 100%;
+  height: clamp(365px, 63vw, 560px);
+  min-height: 365px;
+}
+
+.prediction-status {
+  min-height: 1.35rem;
+  margin: .75rem .25rem 0;
+}
+
+.prediction-status--error { color: #b42318; font-weight: 650; }
+.prediction-status--stale { color: #9a6700; font-weight: 650; }
+
+.prediction-echarts-tooltip span { display: inline-block; min-width: 6.5rem; margin-top: .28rem; color: #bfe8ff; }
+.prediction-echarts-tooltip b { color: #fff; font-weight: 700; }
+
+@media (max-width: 767px) {
+  .prediction-page { padding: 8rem .55rem 3.4rem; }
+  .prediction-overview { grid-template-columns: 1fr; gap: 1rem; margin-top: 1.35rem; padding: 1.1rem; }
+  .prediction-update-times { text-align: left; }
+  .prediction-chart-card { padding: 1rem .15rem .6rem; border-radius: .8rem; }
+  .prediction-chart-title { margin-left: .85rem; }
+  .prediction-legend { margin-left: .85rem; margin-right: .85rem; gap: .42rem; }
+  .prediction-legend-button { min-height: 2.8rem; padding: .52rem .67rem; font-size: .84rem; }
+  .prediction-chart { height: 385px; min-height: 385px; }
+  .prediction-status { margin-left: .85rem; margin-right: .85rem; }
+}

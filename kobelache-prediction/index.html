@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Prediction | Canyon Explore</title>
+  <meta content="Kobelache discharge prediction." name="description"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <link href="../assets/css/site.css?v=20260331-headerfix" rel="stylesheet" type="text/css"/>
+  <link href="../assets/css/kobelache-prediction.css?v=20260826" rel="stylesheet" type="text/css"/>
+  <link href="../assets/logos/677d293c46899a7c3271af0a_Canyon-Explore_Logo_light_blackBack_32.png" rel="shortcut icon" type="image/x-icon"/>
+  <link href="../assets/logos/677d293f7320017c57e8f703_Canyon-Explore_Logo_light_blackBack_256.png" rel="apple-touch-icon"/>
+</head>
+<body class="body-2">
+  <div data-collapse="all" data-animation="default" data-duration="400" data-easing="ease-out" data-easing2="ease-out" role="banner" class="navigation w-nav">
+        <div class="div-nav-bar">
+            <div class="div-nav-logo">
+                <div class="div-logo">
+                    <a href="/" class="link-logo w-inline-block">
+                        <img src="../assets/logos/67701f892122796ef4009e57_Canyon-Explore_Logo_light_noBack.png" loading="lazy" sizes="(max-width: 2480px) 100vw, 2480px" srcset="../assets/logos/67701f892122796ef4009e57_Canyon-Explore_Logo_light_noBack-p-500.png 500w, ../assets/logos/67701f892122796ef4009e57_Canyon-Explore_Logo_light_noBack-p-800.png 800w, ../assets/logos/67701f892122796ef4009e57_Canyon-Explore_Logo_light_noBack-p-1080.png 1080w, ../assets/logos/67701f892122796ef4009e57_Canyon-Explore_Logo_light_noBack-p-1600.png 1600w, ../assets/logos/67701f892122796ef4009e57_Canyon-Explore_Logo_light_noBack-p-2000.png 2000w, ../assets/logos/67701f892122796ef4009e57_Canyon-Explore_Logo_light_noBack.png 2480w" alt="canyon explore logo" class="image-logo"/></a>
+                    </div>
+                </div>
+                <div class="div-nav-menubar">
+                    <a href="/" class="nav-link w-inline-block">
+                        <div class="text-block-nav">App
+                        </div>
+                    </a>
+                    <a href="/kobelache-prediction" aria-current="page" class="nav-link w-inline-block w--current">
+                        <div class="text-block-nav">Prediction
+                        </div>
+                    </a>
+                    <a href="/about" class="nav-link w-inline-block">
+                        <div class="text-block-nav">About
+                        </div>
+                    </a>
+                    <a href="https://topo-creator.canyon-explore.com/" target="_blank" class="nav-link w-inline-block">
+                        <div class="text-block-nav">Topo-Creator
+                        </div>
+                    </a>
+                    <a href="/faqs" class="nav-link w-inline-block">
+                        <div class="text-block-nav">FAQs
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div data-w-id="5064131c-6b98-7886-200a-78e02615dc3b" class="div-nav-background">
+            </div>
+        </div>
+        <main class="prediction-page">
+    <div class="prediction-shell">
+      <header>
+        <h1 class="prediction-heading">Kobelache-Abflussprognose</h1>
+      </header>
+
+      <section class="prediction-overview" aria-label="Aktueller Abfluss und Datenstand">
+        <div>
+          <span class="prediction-overview-label">Aktuell gemessener Abfluss Q</span>
+          <div><span id="prediction-current-q" class="prediction-current-q">–</span><span class="prediction-current-unit">m³/s</span></div>
+          <p class="prediction-current-time">Messzeitpunkt: <time id="prediction-cutoff">–</time></p>
+        </div>
+        <div class="prediction-update-times">
+          <div>Letzte Aktualisierung: <strong><time id="prediction-issued-at">–</time></strong></div>
+          <div>Nächste Aktualisierung voraussichtlich: <strong><time id="prediction-next-update">–</time></strong></div>
+        </div>
+      </section>
+
+      <section class="prediction-chart-card" aria-labelledby="prediction-chart-title">
+        <h2 id="prediction-chart-title" class="prediction-chart-title">Abflussprognose</h2>
+        <div class="prediction-legend" aria-label="Sichtbare Prognosebereiche">
+          <button type="button" class="prediction-legend-button" data-prediction-series="median" aria-pressed="true"><span class="prediction-legend-swatch prediction-legend-swatch--median"></span>Median</button>
+          <button type="button" class="prediction-legend-button" data-prediction-series="fifty" aria-pressed="true"><span class="prediction-legend-swatch prediction-legend-swatch--fifty"></span>50%-Bereich</button>
+          <button type="button" class="prediction-legend-button" data-prediction-series="ninety" aria-pressed="true"><span class="prediction-legend-swatch prediction-legend-swatch--ninety"></span>90%-Bereich</button>
+        </div>
+        <div id="prediction-chart" class="prediction-chart" role="img" aria-label="Interaktive Abflussprognose der Kobelache"></div>
+        <p id="prediction-status" class="prediction-status" aria-live="polite">Prognose wird geladen …</p>
+      </section>
+    </div>
+  </main>
+  <div class="footer">
+    <div class="div-block-16"></div>
+    <div class="div-footer-container">
+      <div class="div-footer-logo"><div class="text-block-5">© 2025<br/>Canyon Explore<br/>All rights reserved</div></div>
+      <div class="div-footer-imprint">
+        <a href="/friends-and-partner" class="link-text-footer">Friends and Partner</a><a href="/privacy" class="link-text-footer">Privacy</a><a href="/terms-of-use" class="link-text-footer">Terms of Use</a><a href="/contact" class="link-text-footer">Contact</a><a href="/imprint" class="link-text-footer">Imprint</a>
+      </div>
+    </div>
+  </div>
+  <script src="../assets/js/site.js?v=20260331-headerfix" defer></script>
+  <script src="../assets/js/echarts.min.js" defer></script>
+  <script src="../assets/js/kobelache-prediction.js?v=20260826" defer></script>
+</body>
+</html>
