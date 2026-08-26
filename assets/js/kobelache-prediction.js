@@ -104,7 +104,7 @@
     chart.setOption({
       animation: false,
       aria: { enabled: true, description: 'Abflussprognose der Kobelache für die nächsten 60 Stunden.' },
-      grid: { top: 18, right: 38, bottom: 100, left: 78, containLabel: false },
+      grid: { top: 18, right: 12, bottom: 100, left: 0, containLabel: true },
       xAxis: {
         type: 'time', min: timeBounds.min, max: timeBounds.max, interval: 6 * 60 * 60 * 1000,
         axisLine: { lineStyle: { color: '#747474' } }, axisTick: { show: false },

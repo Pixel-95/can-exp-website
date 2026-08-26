@@ -140,7 +140,8 @@
 .prediction-legend-swatch--fifty { width: 1.15rem; height: .85rem; border: 1px solid rgba(101, 199, 255, .45); border-radius: 3px; background: rgba(101, 199, 255, .26); }
 
 .prediction-chart {
-  width: 100%;
+  width: calc(100% - .25rem);
+  margin-left: .25rem;
   height: clamp(365px, 63vw, 560px);
   min-height: 365px;
 }
@@ -165,6 +166,6 @@
   .prediction-overview .prediction-chart-title { margin-left: -.1rem; }
   .prediction-legend { margin-left: .85rem; margin-right: .85rem; gap: .42rem; }
   .prediction-legend-button { min-height: 2.8rem; padding: .52rem .67rem; font-size: .84rem; }
-  .prediction-chart { height: 385px; min-height: 385px; }
+  .prediction-chart { width: calc(100% - .85rem); margin-left: .85rem; height: 385px; min-height: 385px; }
   .prediction-status { margin-left: .85rem; margin-right: .85rem; }
 }
