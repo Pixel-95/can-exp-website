@@ -116,7 +116,7 @@
       xAxis: {
         type: 'category', boundaryGap: false, data: timestamps,
         axisLine: { lineStyle: { color: '#747474' } }, axisTick: { show: false },
-        axisLabel: { color: '#d5d5d5', fontSize: 11, rotate: 40, margin: 17, hideOverlap: false, formatter: (value, index) => xLabelIndexes().has(index) ? formatDate(value) : '' }
+        axisLabel: { color: '#d5d5d5', fontSize: 11, rotate: 40, margin: 17, interval: 0, hideOverlap: false, formatter: (value, index) => xLabelIndexes().has(index) ? formatDate(value) : '' }
       },
       yAxis: {
         type: 'value', min: 0, max: axis.max, interval: axis.interval, name: 'Abfluss (m³/s)', nameTextStyle: { color: '#d5d5d5', fontSize: 12, padding: [0, 0, 8, -4] },
