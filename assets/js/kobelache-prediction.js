@@ -65,6 +65,27 @@
     return null;
   }
 
+  function renderTimeLabels(bounds) {
+    const labels = [];
+    const times = [];
+    for (let time = bounds.min; time <= bounds.max; time += bounds.interval) times.push(time);
+    times.forEach((time, index) => {
+      const x = chart.convertToPixel({ xAxisIndex: 0 }, time);
+      labels.push({
+        id: `prediction-time-tick-${time}`,
+        type: 'text',
+        x,
+        y: chart.getHeight() - 78,
+        rotation: -Math.PI / 4,
+        originX: x,
+        originY: chart.getHeight() - 78,
+        silent: true,
+        style: { text: formatDate(time), fill: '#d5d5d5', font: '11px sans-serif', textAlign: index === 0 ? 'left' : index === times.length - 1 ? 'right' : 'center', textVerticalAlign: 'top' }
+      });
+    });
+    chart.setOption({ graphic: labels }, { replaceMerge: ['graphic'] });
+  }
+
   function niceStep(value) {
     const exponent = Math.floor(Math.log10(Math.max(value, 0.001)));
     const magnitude = 10 ** exponent;
@@ -117,7 +138,7 @@
       xAxis: {
         type: 'time', min: timeBounds.min, max: timeBounds.max, interval: timeBounds.interval, minInterval: timeBounds.interval, maxInterval: timeBounds.interval,
         axisLine: { lineStyle: { color: '#747474' } }, axisTick: { show: false },
-        axisLabel: { color: '#d5d5d5', fontSize: 11, rotate: 40, margin: 17, hideOverlap: false, formatter: (value) => formatDate(value) }
+        axisLabel: { show: false }
       },
       yAxis: {
         type: 'value', min: 0, max: axis.max, interval: axis.interval, name: 'Abfluss (m³/s)', nameTextStyle: { color: '#d5d5d5', fontSize: 12, padding: [0, 0, 8, -4] },
@@ -141,6 +162,7 @@
         { name: 'Vorhersage', type: 'line', data: asTimeSeries(visible.median ? chartRows.map((point) => point.q_p50 === undefined ? null : Number(point.q_p50)) : chartRows.map(() => null)), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3, type: 'dashed' }, itemStyle: { color: '#65c7ff' }, z: 5 }
       ]
     }, true);
+    renderTimeLabels(timeBounds);
   }
 
   function showStatus(message, type = '') {
