@@ -142,8 +142,8 @@
 .prediction-chart {
   width: calc(100% - .25rem);
   margin-left: .25rem;
-  height: clamp(365px, 63vw, 560px);
-  min-height: 365px;
+  height: clamp(730px, 126vw, 1120px);
+  min-height: 730px;
 }
 
 .prediction-status {
@@ -166,6 +166,6 @@
   .prediction-overview .prediction-chart-title { margin-left: -.1rem; }
   .prediction-legend { margin-left: .85rem; margin-right: .85rem; gap: .42rem; }
   .prediction-legend-button { min-height: 2.8rem; padding: .52rem .67rem; font-size: .84rem; }
-  .prediction-chart { width: calc(100% - .85rem); margin-left: .85rem; height: 385px; min-height: 385px; }
+  .prediction-chart { width: calc(100% - .85rem); margin-left: .85rem; height: 770px; min-height: 770px; }
   .prediction-status { margin-left: .85rem; margin-right: .85rem; }
 }
