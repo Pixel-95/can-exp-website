@@ -14,7 +14,6 @@
   let chart;
   let forecastPoints = [];
   let chartRows = [];
-  let dataCutoffTime;
 
   const dateFormatter = new Intl.DateTimeFormat('de-AT', {
     timeZone: TIME_ZONE,
@@ -39,29 +38,15 @@
     return next;
   }
 
-  function xLabelIndexes() {
-    const positions = new Map(chartRows.map((point, index) => [new Date(point.valid_time).getTime(), index]));
-    const labels = new Set();
-    const add = (time) => {
-      const position = positions.get(time.getTime());
-      if (position !== undefined) labels.add(position);
-    };
-    const first = new Date(chartRows[0].valid_time).getTime();
-    const last = new Date(chartRows[chartRows.length - 1].valid_time).getTime();
-    const cutoff = new Date(dataCutoffTime);
-    add(cutoff);
+  const asTimeSeries = (values) => values.map((value, index) => [chartRows[index].valid_time, value]);
 
-    const hour = new Date(cutoff);
-    hour.setUTCMinutes(0, 0, 0);
-    const cutoffIsFullHour = cutoff.getUTCMinutes() === 0 && cutoff.getUTCSeconds() === 0;
-    const backward = new Date(hour);
-    backward.setUTCHours(backward.getUTCHours() - (cutoffIsFullHour ? 6 : 5));
-    for (let time = backward; time.getTime() >= first; time = new Date(time.getTime() - 6 * 60 * 60 * 1000)) add(time);
-
-    const forward = new Date(hour);
-    forward.setUTCHours(forward.getUTCHours() + (cutoffIsFullHour ? 6 : 7));
-    for (let time = forward; time.getTime() <= last; time = new Date(time.getTime() + 6 * 60 * 60 * 1000)) add(time);
-    return labels;
+  function timeAxisBounds() {
+    const first = new Date(chartRows[0].valid_time);
+    const last = new Date(chartRows[chartRows.length - 1].valid_time);
+    first.setUTCMinutes(0, 0, 0);
+    last.setUTCMinutes(0, 0, 0);
+    last.setUTCHours(last.getUTCHours() + 1);
+    return { min: first.getTime(), max: last.getTime() };
   }
 
   function niceStep(value) {
@@ -90,8 +75,8 @@
     const range = chartRows.map((point) => point[lowerKey] === undefined ? null : Number(point[upperKey]) - Number(point[lowerKey]));
     const inactiveData = active ? undefined : lower.map(() => null);
     return [
-      { name, type: 'line', stack, data: inactiveData || lower, symbol: 'none', lineStyle: { opacity: 0 }, areaStyle: { opacity: 0 }, tooltip: { show: false }, emphasis: { disabled: true }, silent: true, z: 1 },
-      { name, type: 'line', stack, data: active ? range : range.map(() => null), symbol: 'none', lineStyle: { opacity: 0 }, areaStyle: { color, opacity: 1 }, tooltip: { show: false }, emphasis: { disabled: true }, silent: true, z: 2 }
+      { name, type: 'line', stack, data: asTimeSeries(inactiveData || lower), symbol: 'none', lineStyle: { opacity: 0 }, areaStyle: { opacity: 0 }, tooltip: { show: false }, emphasis: { disabled: true }, silent: true, z: 1 },
+      { name, type: 'line', stack, data: asTimeSeries(active ? range : range.map(() => null)), symbol: 'none', lineStyle: { opacity: 0 }, areaStyle: { color, opacity: 1 }, tooltip: { show: false }, emphasis: { disabled: true }, silent: true, z: 2 }
     ];
   }
 
@@ -108,15 +93,15 @@
   function renderChart() {
     if (!chart) chart = echarts.init(chartElement, null, { renderer: 'canvas' });
     const axis = yAxis();
-    const timestamps = chartRows.map((point) => point.valid_time);
+    const timeBounds = timeAxisBounds();
     chart.setOption({
       animation: false,
       aria: { enabled: true, description: 'Abflussprognose der Kobelache für die nächsten 60 Stunden.' },
       grid: { top: 18, right: 38, bottom: 100, left: 78, containLabel: false },
       xAxis: {
-        type: 'category', boundaryGap: false, data: timestamps,
+        type: 'time', min: timeBounds.min, max: timeBounds.max, interval: 6 * 60 * 60 * 1000,
         axisLine: { lineStyle: { color: '#747474' } }, axisTick: { show: false },
-        axisLabel: { color: '#d5d5d5', fontSize: 11, rotate: 40, margin: 17, interval: 0, hideOverlap: false, formatter: (value, index) => xLabelIndexes().has(index) ? formatDate(value) : '' }
+        axisLabel: { color: '#d5d5d5', fontSize: 11, rotate: 40, margin: 17, hideOverlap: false, formatter: (value) => formatDate(value) }
       },
       yAxis: {
         type: 'value', min: 0, max: axis.max, interval: axis.interval, name: 'Abfluss (m³/s)', nameTextStyle: { color: '#d5d5d5', fontSize: 12, padding: [0, 0, 8, -4] },
@@ -134,10 +119,10 @@
         }
       },
       series: [
-        { name: '', type: 'line', data: chartRows.map((point) => Number(point.observed_q ?? point.q_p50)), symbol: 'none', lineStyle: { opacity: 0 }, itemStyle: { opacity: 0 }, silent: true, z: 0 },
-        { name: 'Gemessen', type: 'line', data: visible.observed ? chartRows.map((point) => point.observed_q ?? null) : chartRows.map(() => null), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3 }, itemStyle: { color: '#65c7ff' }, z: 6 },
+        { name: '', type: 'line', data: asTimeSeries(chartRows.map((point) => Number(point.observed_q ?? point.q_p50))), symbol: 'none', lineStyle: { opacity: 0 }, itemStyle: { opacity: 0 }, silent: true, z: 0 },
+        { name: 'Gemessen', type: 'line', data: asTimeSeries(visible.observed ? chartRows.map((point) => point.observed_q ?? null) : chartRows.map(() => null)), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3 }, itemStyle: { color: '#65c7ff' }, z: 6 },
         ...bandSeries('50%-Bereich', 'q_p25', 'q_p75', 'rgba(101, 199, 255, .26)', visible.fifty, 'fifty'),
-        { name: 'Vorhersage', type: 'line', data: visible.median ? chartRows.map((point) => point.q_p50 === undefined ? null : Number(point.q_p50)) : chartRows.map(() => null), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3, type: 'dashed' }, itemStyle: { color: '#65c7ff' }, z: 5 }
+        { name: 'Vorhersage', type: 'line', data: asTimeSeries(visible.median ? chartRows.map((point) => point.q_p50 === undefined ? null : Number(point.q_p50)) : chartRows.map(() => null)), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3, type: 'dashed' }, itemStyle: { color: '#65c7ff' }, z: 5 }
       ]
     }, true);
   }
@@ -159,7 +144,6 @@
 
   function buildChartRows(forecast) {
     forecastPoints = forecast.points;
-    dataCutoffTime = forecast.data_cutoff;
     const observationCutoff = new Date(forecast.data_cutoff).getTime();
     const observations = Array.isArray(forecast.observations?.points) ? forecast.observations.points : [];
     const measured = observations
