@@ -171,7 +171,7 @@
       grid,
       graphic: [
         ...dayLabels,
-        { type: 'line', silent: true, shape: { x1: nowX, y1: plotBottom, x2: nowX, y2: plotBottom + 25 }, style: { stroke: '#454545', lineWidth: 1 }, z: 20 },
+        { type: 'line', silent: true, shape: { x1: nowX, y1: plotBottom, x2: nowX, y2: plotBottom + 25 }, style: { stroke: '#fff', lineWidth: 2 }, z: 20 },
         { type: 'text', silent: true, x: nowX, y: plotBottom + 29, style: { text: 'Jetzt', fill: '#d5d5d5', font: '12px Arial', textAlign: 'center', textVerticalAlign: 'top' }, z: 20 }
       ],
       xAxis: {
@@ -195,7 +195,7 @@
         }
       },
       series: [
-        { name: '', type: 'line', data: asTimeSeries(chartRows.map((point) => Number(point.observed_q ?? point.q_p50))), symbol: 'none', lineStyle: { opacity: 0 }, itemStyle: { opacity: 0 }, silent: true, markArea: { silent: true, itemStyle: { color: 'rgba(255, 255, 255, .07)' }, data: shadedDays }, markLine: { silent: true, symbol: 'none', label: { show: false }, lineStyle: { color: '#454545', width: 1, type: 'solid' }, data: [{ xAxis: latestMeasurementTime() }] }, z: 0 },
+        { name: '', type: 'line', data: asTimeSeries(chartRows.map((point) => Number(point.observed_q ?? point.q_p50))), symbol: 'none', lineStyle: { opacity: 0 }, itemStyle: { opacity: 0 }, silent: true, markArea: { silent: true, itemStyle: { color: 'rgba(255, 255, 255, .07)' }, data: shadedDays }, markLine: { silent: true, symbol: 'none', label: { show: false }, lineStyle: { color: '#fff', width: 2, type: 'solid' }, data: [{ xAxis: latestMeasurementTime() }] }, z: 0 },
         { name: 'Gemessen', type: 'line', data: asTimeSeries(visible.observed ? chartRows.map((point) => point.observed_q ?? null) : chartRows.map(() => null)), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3 }, itemStyle: { color: '#65c7ff' }, z: 6 },
         ...bandSeries('50%-Bereich', 'q_p25', 'q_p75', 'rgba(101, 199, 255, .26)', visible.fifty, 'fifty'),
         { name: 'Vorhersage', type: 'line', data: asTimeSeries(visible.median ? chartRows.map((point) => point.q_p50 === undefined ? null : Number(point.q_p50)) : chartRows.map(() => null)), symbol: 'none', smooth: false, lineStyle: { color: '#65c7ff', width: 3, type: 'dashed' }, itemStyle: { color: '#65c7ff' }, z: 5 }
